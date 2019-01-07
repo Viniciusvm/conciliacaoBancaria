@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html ng-app="conciliacaoApp">
+	<head>
+		<title>Demo - Papa Parse</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, maximum-scale=1.0">
+		<meta name="theme-color" content="#ffffff">
+        
+		<script src="/js/jquery/jquery.js"></script>
+		<script src="/js/angular/angular.js"></script>
+		<script src="/js/csv/papaparse.js"></script>
+		<script src="/js/conciliacao/conciliacao.js"></script>
+        <link rel="stylesheet" type="text/css"  href="/bootstrap-4.2.1/css/bootstrap.css"></link>
+        <script src="/bootstrap-4.2.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+
+	</head>
+	<body>
+        <div class="container-fluid" ng-controller="ConciliacaoController as conciliacao" >
+            <div class="row">
+                <div class="col-sm-12">
+               
+                        <div class="form-group">
+                            <label>
+                                Importar extrato
+                            </label>
+                            <input class="form-control" type="file" id="arquivo">
+                        </div>
+                    
+                </div>
+            </div>
+
+            <div class="row">
+                <input type="submit" id="submit" ></input>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="table-responsive" >
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th ng-repeat="descricao in conciliacao.cabecalho track by $index">{{descricao}}</th>
+                            
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="lista in conciliacao.extrato track by $index">
+                                <td ng-repeat="valor in lista track by $index">{{valor}}</td>
+                            </tr>
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="table-responsive" >
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th ng-repeat="descricao in conciliacao.cabecalho track by $index">{{descricao}}</th>
+                            
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="lista in conciliacao.extrato track by $index">
+                                <td ng-repeat="valor in lista track by $index">{{valor}}</td>
+                            </tr>
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+
+    </div>
+	</body>
+</html>
