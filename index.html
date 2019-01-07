@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html ng-app="conciliacaoApp">
 	<head>
-		<title>Demo - Papa Parse</title>
-		<meta charset="utf-8">
+		<meta charset="ISO-8859-1">
 		<meta name="viewport" content="width=device-width, maximum-scale=1.0">
 		<meta name="theme-color" content="#ffffff">
+
+        <link rel="shortcut icon" href="/img/favicon-igam.gif">
+
+        <style>
+            .bg-whtie-smoke{
+                background-color:whitesmoke;
+            }
+
+            .bg-igam {
+                background-color: #00304F;
+            }
+
+            .vertical-align{
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+
+        </style>
         
 		<script src="/js/jquery/jquery.js"></script>
 		<script src="/js/angular/angular.js"></script>
@@ -12,40 +29,73 @@
 		<script src="/js/conciliacao/conciliacao.js"></script>
         <link rel="stylesheet" type="text/css"  href="/bootstrap-4.2.1/css/bootstrap.css"></link>
         <script src="/bootstrap-4.2.1/js/bootstrap.min.js"></script>
+        <title> Instituto Gamma de Assessoria a Órgãos Públicos | IGAM</title>
+        <meta name="title" content="Instituto Gamma de Assessoria a Órgãos Públicos | IGAM">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 
 	</head>
-	<body>
-        <div class="container-fluid" ng-controller="ConciliacaoController as conciliacao" >
-            <div class="row">
-                <div class="col-sm-12">
+	<body >
+        <div class="container border border-secondary" ng-controller="ConciliacaoController as conciliacao" >
+            <div class="row bg-igam">
+                <img src="/img/logo.png">
+
+                <h2 class="text-white vertical-align" >Conciliação bancária</h2>
+            </div>
+
+            <div class="row p-4" >
+           
+                    <div class="col-sm-12 bg-igam text-white">
+                        <h2>Importar</h1>
+                    </div>
                
-                        <div class="form-group">
-                            <label>
-                                Importar extrato
-                            </label>
-                            <input class="form-control" type="file" id="arquivo">
-                        </div>
-                    
-                </div>
+
+ 
+                    <div class="col-sm-6 bg-whtie-smoke">
+                            <div class="form-group">
+                                <label for="extrato">
+                                    Extrato :
+                                </label>
+                                <input  class="form-control-file" type="file" id="extrato">
+                            </div>
+                        
+                    </div>
+
+                    <div class="col-sm-6 bg-whtie-smoke">
+                
+                            <div class="form-group">
+                                <label for="arquivo">
+                                    Arquivo :
+                                </label>
+                                <input class="form-control-file" type="file" id="arquivo">
+                            </div>
+                        
+                    </div>
+            
+
+                
+                    <div class="col-sm-12">
+                        <input class="btn btn-primary float-right mt-2" type="submit" id="submit" ></input>
+                    </div>
             </div>
 
-            <div class="row">
-                <input type="submit" id="submit" ></input>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-6">
+            <hr ng-if="conciliacao.extrato&&conciliacao.arquivo"></hr>
+            
+            <div  class="row mt-3">
+                
+                <div ng-if="conciliacao.extrato" class="col-sm-6">
+                    <h3>Extrato</h2>
                     <div class="table-responsive" >
-                        <table class="table table-striped">
+                        <table class="table table-striped table-sm">
                             <thead>
                             <tr>
-                                <th ng-repeat="descricao in conciliacao.cabecalho track by $index">{{descricao}}</th>
+                                <th>Marcar</th>
+                                <th ng-repeat="descricao in conciliacao.cabecalhoExtrato track by $index">{{descricao}}</th>
                             
                             </tr>
                             </thead>
                             <tbody>
                             <tr ng-repeat="lista in conciliacao.extrato track by $index">
+                                <td><input type="checkbox" class="form-control"></input> </td>
                                 <td ng-repeat="valor in lista track by $index">{{valor}}</td>
                             </tr>
                             
@@ -54,18 +104,20 @@
                     </div>
                 </div>
 
-
-                <div class="col-sm-6">
+                <div ng-if="conciliacao.arquivo" class="col-sm-6">
+                      <h3>Arquivo</h2>
                     <div class="table-responsive" >
-                        <table class="table table-striped">
+                        <table class="table table-striped table-sm">
                             <thead>
                             <tr>
-                                <th ng-repeat="descricao in conciliacao.cabecalho track by $index">{{descricao}}</th>
+                                <th>Marcar</th>
+                                <th ng-repeat="descricao in conciliacao.cabecalhoArquivo track by $index">{{descricao}}</th>
                             
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="lista in conciliacao.extrato track by $index">
+                            <tr ng-repeat="lista in conciliacao.arquivo track by $index">
+                                <td><input type="checkbox" class="form-control"></input> </td>
                                 <td ng-repeat="valor in lista track by $index">{{valor}}</td>
                             </tr>
                             
@@ -73,6 +125,7 @@
                         </table>
                     </div>
                 </div>
+
             </div>
             
 

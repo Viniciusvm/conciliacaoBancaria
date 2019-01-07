@@ -3,19 +3,16 @@ angular.module('conciliacaoApp', [])
     var conciliacao = this;
     var start, end;
     var stepped = 0, rowCount = 0, errorCount = 0, firstError;
-
-    conciliacao.extrato = [];
-    conciliacao.cabecalho = [];
-
+    
     $(function()
     {
 
-        function buildConfig()
+        function buildConfig(tipoArquivo)
         {
             return {
                 delimiter: ",",
-                encoding: 'UTF-8',
-                complete: completeFn,
+                encoding: 'ISO-8859-1',
+                complete: tipoArquivo==='E'?completeFnExtrato:completeFnArquivo,
                 error: errorFn
             };
         }
@@ -38,7 +35,7 @@ angular.module('conciliacaoApp', [])
 
 
 
-        function completeFn(results)
+        function completeFnExtrato(results)
         {
             end = $.now();
 
@@ -55,12 +52,36 @@ angular.module('conciliacaoApp', [])
 
             printStats("Parse complete");
             console.log("    Results:", results);
-            conciliacao.cabecalho = results.data.shift();
+            conciliacao.cabecalhoExtrato = results.data.shift();
             
             conciliacao.extrato = results.data;
             
             $scope.$apply();
         }
+
+          function completeFnArquivo(results)
+            {
+                end = $.now();
+
+                if (results && results.errors)
+                {
+                    if (results.errors)
+                    {
+                        errorCount = results.errors.length;
+                        firstError = results.errors[0];
+                    }
+                    if (results.data && results.data.length > 0)
+                        rowCount = results.data.length;
+                }
+
+                printStats("Parse complete");
+                console.log("    Results:", results);
+
+                conciliacao.cabecalhoArquivo = results.data.shift();
+                conciliacao.arquivo = results.data;
+                
+                $scope.$apply();
+            }
 
         function errorFn(err, file)
         {
@@ -76,8 +97,29 @@ angular.module('conciliacaoApp', [])
             errorCount = 0;
             firstError = undefined;
 
-            var config = buildConfig();
+            var config = buildConfig("E");
 
+            $('#extrato').parse({
+                config: config,
+                before: function(file, inputElem)
+                {
+                    start = $.now();
+                    console.log("Parsing file...", file);
+                },
+                error: function(err, file)
+                {
+                    console.log("ERROR:", err, file);
+                    firstError = firstError || err;
+                    errorCount++;
+                },
+                complete: function()
+                {
+                    end = $.now();
+                    printStats("Done with all files");
+                }
+            });
+
+            config = buildConfig("A");
             $('#arquivo').parse({
                 config: config,
                 before: function(file, inputElem)
@@ -97,6 +139,10 @@ angular.module('conciliacaoApp', [])
                     printStats("Done with all files");
                 }
             });
+
+
+
+            
 
 
         });
