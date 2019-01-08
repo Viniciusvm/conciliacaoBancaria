@@ -4,6 +4,27 @@ angular.module('conciliacaoApp', [])
     var start, end;
     var stepped = 0, rowCount = 0, errorCount = 0, firstError;
     
+    conciliacao.excluirColuna = excluirColuna;
+
+    function excluirColuna (indice,tipo){
+        if  (tipo==='E')
+        {
+            conciliacao.cabecalhoExtrato.splice(indice,1);
+
+            conciliacao.extrato = conciliacao.extrato.filter(function (value, index, arr){
+                return value.splice(indice,1);
+            });    
+        }
+        else
+        {
+            conciliacao.cabecalhoArquivo.splice(indice,1);
+
+            conciliacao.arquivo = conciliacao.arquivo.filter(function (value, index, arr){
+                return value.splice(indice,1);
+            });
+        }
+    }
+    
     $(function()
     {
 
@@ -16,9 +37,6 @@ angular.module('conciliacaoApp', [])
                 error: errorFn
             };
         }
-
-
-        
 
         function printStats(msg)
         {
@@ -90,7 +108,7 @@ angular.module('conciliacaoApp', [])
         }
 
 
-        $('#submit').click(function()
+        $('#carregar').click(function()
 	    {
             stepped = 0;
             rowCount = 0;
@@ -139,11 +157,6 @@ angular.module('conciliacaoApp', [])
                     printStats("Done with all files");
                 }
             });
-
-
-
-            
-
 
         });
 
