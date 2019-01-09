@@ -1,148 +1,174 @@
 <!DOCTYPE html>
 <html ng-app="conciliacaoApp">
-	<head>
-		<meta charset="ISO-8859-1">
-		<meta name="viewport" content="width=device-width, maximum-scale=1.0">
-		<meta name="theme-color" content="#ffffff">
 
-        <link rel="shortcut icon" href="/img/favicon-igam.gif">
+<head>
+	<meta charset="ISO-8859-1">
+	<meta name="viewport" content="width=device-width, maximum-scale=1.0">
+	<meta name="theme-color" content="#ffffff">
 
-        <style>
-            .bg-whtie-smoke{
-                background-color:whitesmoke;
-            }
+	<link rel="shortcut icon" href="/img/favicon-igam.gif">
 
-            .bg-igam {
-                background-color: #00304F;
-            }
+	<style>
+		.bg-whtie-smoke {
+			background-color: whitesmoke;
+		}
+		
+		.bg-igam {
+			background-color: #00304F;
+		}
+		
+		.vertical-align {
+			margin-top: auto;
+			margin-bottom: auto;
+		}
+		
+		.marcador {
+			background-color: #f7ff7a;
+		}
+	</style>
 
-            .vertical-align{
-                margin-top: auto;
-                margin-bottom: auto;
-            }
+	<script src="/js/jquery/jquery.js"></script>
+	<script src="/js/angular/angular.js"></script>
+	<script src="/js/csv/papaparse.js"></script>
+	<script src="/js/conciliacao/conciliacao.js"></script>
+	<link rel="stylesheet" type="text/css" href="/bootstrap-4.2.1/css/bootstrap.css"></link>
+	<script src="/bootstrap-4.2.1/js/bootstrap.min.js"></script>
+	<title> Instituto Gamma de Assessoria a Órgãos Públicos | IGAM</title>
+	<meta name="title" content="Instituto Gamma de Assessoria a Órgãos Públicos | IGAM">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+		crossorigin="anonymous"></script>
 
-        </style>
-        
-		<script src="/js/jquery/jquery.js"></script>
-		<script src="/js/angular/angular.js"></script>
-		<script src="/js/csv/papaparse.js"></script>
-		<script src="/js/conciliacao/conciliacao.js"></script>
-        <link rel="stylesheet" type="text/css"  href="/bootstrap-4.2.1/css/bootstrap.css"></link>
-        <script src="/bootstrap-4.2.1/js/bootstrap.min.js"></script>
-        <title> Instituto Gamma de Assessoria a Órgãos Públicos | IGAM</title>
-        <meta name="title" content="Instituto Gamma de Assessoria a Órgãos Públicos | IGAM">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+</head>
 
-	</head>
-	<body >
-        <div class="container border border-secondary" ng-controller="ConciliacaoController as conciliacao" >
-            <div class="row bg-igam">
-                <img src="/img/logo.png">
+<body>
+	<div class="container border border-secondary" ng-controller="ConciliacaoController as conciliacao">
+		<div class="row bg-igam">
+			<img src="/img/logo.png">
 
-                <h2 class="text-white vertical-align" >Conciliação bancária</h2>
-            </div>
+			<h2 class="text-white vertical-align">Conciliação bancária</h2>
+		</div>
 
-            <div class="row p-4" >
-           
-                    <div class="col-sm-12 bg-igam text-white">
-                        <h2>Importar</h1>
-                    </div>
-               
+		<div class="row p-4">
 
- 
-                    <div class="col-sm-6 bg-whtie-smoke">
-                            <div class="form-group">
-                                <label for="extrato">
+			<div class="col-sm-12 bg-igam text-white">
+				<h2>Importar</h1>
+			</div>
+
+
+
+			<div class="col-sm-6 bg-whtie-smoke">
+				<div class="form-group">
+					<label for="extrato">
                                     Extrato :
                                 </label>
-                                <input  class="form-control-file" type="file" id="extrato">
-                            </div>
-                        
-                    </div>
+					<input class="form-control-file" type="file" id="extrato">
+				</div>
 
-                    <div class="col-sm-6 bg-whtie-smoke">
-                
-                            <div class="form-group">
-                                <label for="arquivo">
-                                    Arquivo :
+			</div>
+
+			<div class="col-sm-6 bg-whtie-smoke">
+
+				<div class="form-group">
+					<label for="arquivo">
+                                    Razão :
                                 </label>
-                                <input class="form-control-file" type="file" id="arquivo">
-                            </div>
-                        
-                    </div>
-            
+					<input class="form-control-file" type="file" id="arquivo">
+				</div>
 
-                
-                    <div class="col-sm-12">
-                        <button class="btn btn-secondary mt-2" type="button" id="carregar" >Carregar arquivos</button>
-                    </div>
+			</div>
 
-                     <div class="col-sm-12">
-                        <button class="btn btn-primary mt-2" type="button" id="conciliar" >Conciliar</button>
-                    </div>
 
-                    
-            </div>
 
-            <hr ng-if="conciliacao.extrato&&conciliacao.arquivo"></hr>
-            
-            <div  class="row mt-3">
-                
-                <div ng-if="conciliacao.extrato" class="col-sm-6">
-                    <h3>Extrato</h2>
-                    <div class="table-responsive" >
-                        <table class="table table-striped table-sm">
-                            <thead>
-                            <tr>
-                               <!-- <th>Marcar</th> -->
-                                <th ng-repeat="descricao in conciliacao.cabecalhoExtrato track by $index">{{descricao}}
-                                     <button ng-click="conciliacao.excluirColuna($index,'E')" type="button" class="close" aria-label="Close">
+			<div class="col-sm-12">
+				<button ng-if="conciliacao.conciliado" ng-click="conciliacao.limparJaConciliados()" class="btn btn-primary float-right m-2"
+					type="button" id="conciliar">Limpar conciliados</button>
+
+				<button ng-if="conciliacao.extrato&&conciliacao.arquivo" ng-click="conciliacao.conciliar()" class="btn btn-primary float-right m-2"
+					type="button" id="conciliar">Conciliar</button>
+
+				<button class="btn btn-secondary float-right m-2" type="button" id="carregar">Carregar arquivos</button>
+
+			</div>
+
+
+
+
+		</div>
+
+		<hr ng-if="conciliacao.extrato&&conciliacao.arquivo"></hr>
+
+		<div class="row mt-3">
+
+			<div ng-if="conciliacao.extrato" class="col-sm-6">
+				<div class="row d-flex align-items-end">
+					<div class="col-sm-4">
+						<h3 class="mb-0">Extrato</h3>
+					</div>
+					<div class="col-sm-8" ng-if="conciliacao.conciliado">
+						<span class=""> <strong>Saldo:</strong> R$ {{conciliacao.saldoExtrato}}</span>
+					</div>
+				</div>
+				<div class="table-responsive">
+					<table id="tableExtrato" class="table table-striped table-sm">
+						<thead>
+							<tr>
+								<!-- <th>Marcar</th> -->
+								<th ng-repeat="descricao in conciliacao.cabecalhoExtrato track by $index">{{descricao}}
+									<button ng-click="conciliacao.excluirColuna($index,'E')" type="button" class="close" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
-                                </th>
-                            
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="lista in conciliacao.extrato track by $index">
-                               <!-- <td><input type="checkbox" class="form-control"></input> </td> -->
-                                <td ng-repeat="valor in lista track by $index">{{valor}}</td>
-                            </tr>
-                            
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+								</th>
 
-                <div ng-if="conciliacao.arquivo" class="col-sm-6">
-                      <h3>Arquivo</h2>
-                    <div class="table-responsive" >
-                        <table class="table table-striped table-sm">
-                            <thead>
-                            <tr>
-                              <!--  <th>Marcar</th> -->
-                                <th ng-repeat="descricao in conciliacao.cabecalhoArquivo track by $index">{{descricao}}
-                                    <button ng-click="conciliacao.excluirColuna($index,'A')" type="button" class="close" aria-label="Close">
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="lista in conciliacao.extrato track by $index">
+								<!-- <td><input type="checkbox" class="form-control"></input> </td> -->
+								<td ng-repeat="valor in lista track by $index">{{valor}}</td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div ng-if="conciliacao.arquivo" class="col-sm-6">
+				<div class="row d-flex align-items-end">
+					<div class="col-sm-4">
+						<h3 class="mb-0">Razão</h3>
+					</div>
+					<div class="col-sm-8" ng-if="conciliacao.conciliado">
+						<span class=""><strong> Saldo:</strong> R$ {{conciliacao.saldoArquivo}}</span>
+					</div>
+				</div>
+				<div class="table-responsive">
+					<table id="tableArquivo" class="table table-striped table-sm">
+						<thead>
+							<tr>
+								<!--  <th>Marcar</th> -->
+								<th ng-repeat="descricao in conciliacao.cabecalhoArquivo track by $index">{{descricao}}
+									<button ng-click="conciliacao.excluirColuna($index,'A')" type="button" class="close" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
-                                </th>
-                            
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="lista in conciliacao.arquivo track by $index">
-                                <!-- <td><input type="checkbox" class="form-control"></input> </td> -->
-                                <td ng-repeat="valor in lista track by $index">{{valor}}</td>
-                            </tr>
-                            
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+								</th>
 
-            </div>
-            
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="lista in conciliacao.arquivo track by $index">
+								<!-- <td><input type="checkbox" class="form-control"></input> </td> -->
+								<td ng-repeat="valor in lista track by $index">{{valor}}</td>
+							</tr>
 
-    </div>
-	</body>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+
+	</div>
+</body>
+
 </html>
