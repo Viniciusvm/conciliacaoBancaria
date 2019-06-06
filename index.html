@@ -80,7 +80,7 @@
 
 
 			<div class="col-sm-12">
-				<button ng-if="conciliacao.conciliado" ng-click="conciliacao.limparJaConciliados()" class="btn btn-primary float-right m-2"
+				<button  ng-click="conciliacao.limparJaConciliados()" class="btn btn-primary float-right m-2"
 					type="button" id="conciliar">Limpar conciliados</button>
 
 				<button ng-if="conciliacao.extrato&&conciliacao.arquivo" ng-click="conciliacao.conciliar()" class="btn btn-primary float-right m-2"
@@ -122,9 +122,10 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="lista in conciliacao.extrato track by $index">
+							<tr ng-repeat="lista in conciliacao.extrato track by $index"
+                                 ng-click="conciliacao.linhaExtratoClick($index)" style="cursor: pointer">
 								<!-- <td><input type="checkbox" class="form-control"></input> </td> -->
-								<td ng-repeat="valor in lista track by $index">{{valor}}</td>
+								<td ng-repeat="valor in lista track by $index" >{{valor}}</td>
 							</tr>
 
 						</tbody>
@@ -155,10 +156,11 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="lista in conciliacao.arquivo track by $index">
+							<tr ng-repeat="lista in conciliacao.arquivo track by $index" ng-click="conciliacao.linhaArquivoClick($index)" style="cursor: pointer">
 								<!-- <td><input type="checkbox" class="form-control"></input> </td> -->
-								<td ng-repeat="valor in lista track by $index">{{valor}}</td>
-							</tr>
+								
+                                <td ng-repeat="valor in lista track by $index" >{{valor}}</td>
+							 </tr>
 
 						</tbody>
 					</table>

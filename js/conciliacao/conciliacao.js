@@ -4,6 +4,8 @@ angular.module('conciliacaoApp', [])
     
     conciliacao.excluirColuna = excluirColuna;
     conciliacao.conciliar = conciliar;
+    conciliacao.linhaExtratoClick = linhaExtratoClick;
+    conciliacao.linhaArquivoClick = linhaArquivoClick;
     conciliacao.conciliado = false;
     conciliacao.limparJaConciliados = limparJaConciliados;
     conciliacao.saldoExtrato = 0;
@@ -12,7 +14,33 @@ angular.module('conciliacaoApp', [])
     let indicesConciliadosExtrato = [];
     let indicesConciliadosArquivo = [];
     
-
+      
+    
+    function linhaExtratoClick(indice){
+        let tabelaExtrato = document.getElementById("tableExtrato");
+        if(tabelaExtrato.rows[indice+1].cells[2].className === "marcador"){
+            tabelaExtrato.rows[indice+1].cells[2].className = '';
+            indicesConciliadosExtrato.splice(indice-1,1);
+            
+        }
+        else{
+            tabelaExtrato.rows[indice+1].cells[2].className = "marcador";
+            indicesConciliadosExtrato.push(indice);
+        }
+    }
+      
+    function linhaArquivoClick(indice){
+        let tabelaArquivo = document.getElementById("tableArquivo");
+        if(tabelaArquivo.rows[indice+1].cells[2].className === "marcador"){
+            tabelaArquivo.rows[indice+1].cells[2].className = '';
+            indicesConciliadosArquivo.splice(indice-1,1);
+        }
+        else{
+            tabelaArquivo.rows[indice+1].cells[2].className = "marcador";
+            indicesConciliadosArquivo.push(indice);
+        }
+    }
+      
     function excluirColuna (indice,tipo){
         if  (tipo==='E')
         {
@@ -53,6 +81,7 @@ angular.module('conciliacaoApp', [])
         indicesConciliadosArquivo.forEach(function(element) {
                 conciliacao.arquivo.splice(element,1);
         });
+        indicesConciliadosArquivo = []
     }
 
 
@@ -63,6 +92,8 @@ angular.module('conciliacaoApp', [])
        indicesConciliadosExtrato.forEach(function(element) {
             conciliacao.extrato.splice(element,1);
         });
+        
+        indicesConciliadosExtrato = [];
     }
 
     function removeMarcadores(){
@@ -142,6 +173,82 @@ angular.module('conciliacaoApp', [])
 
          return encontrou;
     }
+
+        function arrumarDados(lista){
+
+      let data_linha_anterior;
+      let mes_ano;
+      let historico_linha;
+
+      lista.forEach(function(linha){
+
+          /*ARRUMA O CAMPO DATA*/
+
+          /* PROCEDIMENTO ESPECIFICO PARA O BANRISUL */
+          if(linha[1]){
+
+            historico_linha = linha[1];
+
+            if(historico_linha.match(/MOVIMENTOS/)){
+              let historico_linha_ano = historico_linha.substring(historico_linha.indexOf('/')+1,historico_linha.indexOf('/') + 5);
+              let historico_linha_mes_extenso = historico_linha.substring(historico_linha.indexOf('/')-4,historico_linha.indexOf('/')).trim();              
+              let historico_linha_mes_numero;
+              switch (historico_linha_mes_extenso) {
+                case 'JAN': historico_linha_mes_numero = '01';
+                break;
+                case 'FEV': historico_linha_mes_numero = '02';
+                break;
+                case 'MAR': historico_linha_mes_numero = '03';
+                break;
+                case 'ABR': historico_linha_mes_numero = '04';
+                break;
+                case 'MAI': historico_linha_mes_numero = '05';
+                break;
+                case 'JUN': historico_linha_mes_numero = '06';
+                break;
+                case 'JUL': historico_linha_mes_numero = '07';
+                break;
+                case 'AGO': historico_linha_mes_numero = '08';
+                break;
+                case 'SET': historico_linha_mes_numero = '09';
+                break;
+                case 'OUT': historico_linha_mes_numero = '10';
+                break;
+                case 'NOV': historico_linha_mes_numero = '11';
+                break;
+                case 'DEZ': historico_linha_mes_numero = '12';
+                break;
+              }
+              mes_ano = historico_linha_mes_numero + '/' + historico_linha_ano;              
+            }
+
+          }
+
+          
+          //ATRIBUI VALOR DA DATA ANTERIOR EM CAMPOS VAZIOS
+          if(linha[0] === ''){
+            linha[0] = data_linha_anterior;
+          }
+          data_linha_anterior  = linha[0];
+
+          //COMPLETA A DATA CASO POSSUA SOMENTE O DIA NO ARQUIVO
+          if(!isNaN(linha[0].trim())){            
+            linha[0] = linha[0].padStart(2,'0') + '/' + mes_ano;
+          }
+
+          
+          //ARRUMA O CAMPO VALOR
+          if(linha[2]){
+            linha[2] = linha[2].replace(',','.');            
+          };
+
+      });
+
+      //NAO SEI PORQUE, MAS ESTAVA ADICIONANDO UMA LINHA A MAIS NO FINAL DO ARRAY
+      //RESOLVI GAMBIANDO DESSA FORMA
+      lista.pop();
+
+    }
     
     $(function()
     {
@@ -149,7 +256,7 @@ angular.module('conciliacaoApp', [])
         function buildConfig(tipoArquivo)
         {
             return {
-                delimiter: ",",
+                delimiter: ";",
                 encoding: 'ISO-8859-1',
                 complete: tipoArquivo==='E'?completeFnExtrato:completeFnArquivo,
                 error: errorFn
@@ -161,6 +268,8 @@ angular.module('conciliacaoApp', [])
             conciliacao.cabecalhoExtrato = results.data.shift();
             
             conciliacao.extrato = results.data;
+
+            arrumarDados(conciliacao.extrato);
             
             $scope.$apply();
         }
@@ -170,6 +279,8 @@ angular.module('conciliacaoApp', [])
 
             conciliacao.cabecalhoArquivo = results.data.shift();
             conciliacao.arquivo = results.data;
+
+            arrumarDados(conciliacao.arquivo);
             
             $scope.$apply();
         }
@@ -181,7 +292,7 @@ angular.module('conciliacaoApp', [])
 
 
         $('#carregar').click(function()
-	    {
+      {
 
             var config = buildConfig("E");
 
