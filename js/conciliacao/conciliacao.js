@@ -4,6 +4,7 @@ angular.module('conciliacaoApp', [])
     
     conciliacao.excluirColuna = excluirColuna;
     conciliacao.conciliar = conciliar;
+    conciliacao.conciliarValorData = conciliarValorData
     conciliacao.linhaExtratoClick = linhaExtratoClick;
     conciliacao.linhaArquivoClick = linhaArquivoClick;
     conciliacao.conciliado = false;
@@ -126,11 +127,41 @@ angular.module('conciliacaoApp', [])
                   if(tabelaExtrato.rows[index+1].cells[2]) 
                         tabelaExtrato.rows[index+1].cells[2].className = "marcador";
                 
-                indicesConciliadosExtrato.push(index);
+                indicesConciliadosExtrato.push(index);               
+                conciliacao.saldoExtrato += Number.parseFloat(valor);
+               
+               }    
+        });
 
-               // console.log('extrato', valor);
+        conciliacao.saldoExtrato = conciliacao.saldoExtrato.toFixed(2);
+        conciliacao.saldoArquivo = conciliacao.saldoArquivo.toFixed(2);
+
+        conciliacao.conciliado = true;
+        
+    }
+
+     function conciliarValorData(){
+
+        //1) Validar qtd colunas do extrato e do arquivo
+        let copiaExtrato = conciliacao.extrato.slice(); 
+        zeraControles();
+
+        copiaExtrato.forEach(function(element,index) {
+               let data = element[0];
+               let historico = element[1];
+               let valor = element[2];
+            
+               if (valor && localizarNoRazaoPorValorData(valor,data)){
+                  let tabelaExtrato = document.getElementById("tableExtrato");
+
+                  if(tabelaExtrato.rows[index+1].cells[2]){
+                    tabelaExtrato.rows[index+1].cells[0].className = "marcador";
+                    tabelaExtrato.rows[index+1].cells[2].className = "marcador";
+                  }
+                
+                  indicesConciliadosExtrato.push(index);               
                   conciliacao.saldoExtrato += Number.parseFloat(valor);
-               // console.log('saldo extrato', conciliacao.saldoExtrato);
+               
                }    
         });
 
@@ -149,19 +180,17 @@ angular.module('conciliacaoApp', [])
          copiaArquivo.every(function(element,index) {
                let data = element[0];
                let historico = element[1];
-               let valor = element[2];
+               let valor = element[2];              
 
-               if (valor && valorExtrato === valor){
+               if (valor && arrumarValorParaComparacao(valorExtrato) === arrumarValorParaComparacao(valor)){
                  let tabelaArquivo = document.getElementById("tableArquivo");
                  if(tabelaArquivo.rows[index+1].cells[2])
                     tabelaArquivo.rows[index+1].cells[2].className = "marcador";
                  encontrou = true;
                  
-                 indicesConciliadosArquivo.push(index);
-                
-              //   console.log('Arquivo' + valor);
-                 conciliacao.saldoArquivo += Number.parseFloat(valor);
-               //  console.log('saldo arquivo', conciliacao.saldoArquivo);
+                 indicesConciliadosArquivo.push(index);               
+              
+                 conciliacao.saldoArquivo += Number.parseFloat(valor);               
 
                  copiaArquivo.splice(index,1);
 
@@ -174,7 +203,41 @@ angular.module('conciliacaoApp', [])
          return encontrou;
     }
 
-        function arrumarDados(lista){
+    function localizarNoRazaoPorValorData(valorExtrato,dataExtrato){
+
+         let encontrou = false;
+         
+         let copiaArquivo = conciliacao.arquivo.slice();  
+
+         copiaArquivo.every(function(element,index) {
+               let data = element[0];
+               let historico = element[1];
+               let valor = element[2];
+
+               if ((valor && arrumarValorParaComparacao(valorExtrato) === arrumarValorParaComparacao(valor)) && (data && dataExtrato === data)) {
+                 let tabelaArquivo = document.getElementById("tableArquivo");
+                 if(tabelaArquivo.rows[index+1].cells[2]){
+                    tabelaArquivo.rows[index+1].cells[2].className = "marcador";
+                    tabelaArquivo.rows[index+1].cells[0].className = "marcador";
+                  }
+                 encontrou = true;
+                 
+                 indicesConciliadosArquivo.push(index);               
+              
+                 conciliacao.saldoArquivo += Number.parseFloat(valor);               
+
+                 copiaArquivo.splice(index,1);
+
+                 return false;
+               }else{
+                   return true;
+               }
+          });
+
+         return encontrou;
+    }
+
+    function arrumarDados(lista){
 
       let data_linha_anterior;
       let mes_ano;
@@ -234,13 +297,7 @@ angular.module('conciliacaoApp', [])
           //COMPLETA A DATA CASO POSSUA SOMENTE O DIA NO ARQUIVO
           if(!isNaN(linha[0].trim())){            
             linha[0] = linha[0].padStart(2,'0') + '/' + mes_ano;
-          }
-
-          
-          //ARRUMA O CAMPO VALOR
-          if(linha[2]){
-            linha[2] = linha[2].replace(',','.');            
-          };
+          }      
 
       });
 
@@ -249,6 +306,22 @@ angular.module('conciliacaoApp', [])
       lista.pop();
 
     }
+
+    function arrumarValorParaComparacao(valor){
+      let valorCorrigido = valor;
+      let decimal1 = valorCorrigido.substr(valorCorrigido.length-1,1);
+      let decimal2 = valorCorrigido.substr(valorCorrigido.length-2,1);
+      let separador = valorCorrigido.substr(valorCorrigido.length-3,1);
+      if(separador != '.' &&  separador != ','){    
+        if(decimal2 === '.' || decimal2 === ','){
+          valorCorrigido = valorCorrigido + '0';
+        } else {
+          valorCorrigido = valorCorrigido + '.00';
+        }        
+      }
+      return valorCorrigido.replace(',', '.');   
+    }
+
     
     $(function()
     {
