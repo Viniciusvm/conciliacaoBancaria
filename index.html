@@ -41,20 +41,20 @@
 </head>
 
 <body>
+
 	<div class="container border border-secondary" ng-controller="ConciliacaoController as conciliacao">
+
 		<div class="row bg-igam">
 			<img src="/img/logo.png">
 
 			<h2 class="text-white vertical-align">Conciliação bancária</h2>
 		</div>
 
-		<div class="row p-4">
+		<div class="d-print-none row p-4">
 
 			<div class="col-sm-12 bg-igam text-white">
 				<h2>Importar</h1>
 			</div>
-
-
 
 			<div class="col-sm-6 bg-whtie-smoke">
 				<div class="form-group">
@@ -80,22 +80,22 @@
 
 
 			<div class="col-sm-12">
-				<button  ng-click="conciliacao.limparJaConciliados()" class="btn btn-primary float-right m-2"
+
+				<button ng-if="conciliacao.extrato||conciliacao.arquivo" ng-click="conciliacao.imprimirResultados()" class="btn btn-secondary float-right m-2" type="button" id="imprimir">Imprimir</button>
+
+				<button  ng-click="conciliacao.limparJaConciliados()" class="btn btn-primary float-right m-2" ng-if="conciliacao.extrato&&conciliacao.arquivo"
 					type="button" id="conciliar">Limpar conciliados</button>
 
 				<button ng-if="conciliacao.extrato&&conciliacao.arquivo" ng-click="conciliacao.conciliar()" class="btn btn-primary float-right m-2"
-					type="button" id="conciliar">Conciliar</button>
+					type="button" id="conciliar">Conciliar por valor</button>
 
 				<button ng-if="conciliacao.extrato&&conciliacao.arquivo" ng-click="conciliacao.conciliarValorData()" class="btn btn-primary float-right m-2"
 					type="button" id="conciliarValorData">Conciliar por valor e data</button>
 
 				<button class="btn btn-secondary float-right m-2" type="button" id="carregar">Carregar arquivos</button>
+				
 
 			</div>
-
-
-
-
 		</div>
 
 		<hr ng-if="conciliacao.extrato&&conciliacao.arquivo"></hr>
@@ -108,7 +108,7 @@
 						<h3 class="mb-0">Extrato</h3>
 					</div>
 					<div class="col-sm-8" ng-if="conciliacao.conciliado">
-						<span class=""> <strong>Saldo:</strong> R$ {{conciliacao.saldoExtrato}}</span>
+						<span class=""> <strong>Saldo:</strong>{{conciliacao.saldoExtrato}}</span>
 					</div>
 				</div>
 				<div class="table-responsive">
@@ -117,7 +117,7 @@
 							<tr>
 								<!-- <th>Marcar</th> -->
 								<th ng-repeat="descricao in conciliacao.cabecalhoExtrato track by $index">{{descricao}}
-									<button ng-click="conciliacao.excluirColuna($index,'E')" type="button" class="close" aria-label="Close">
+									<button ng-click="conciliacao.excluirColuna($index,'E')" type="button" class="d-print-none close" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
 								</th>
@@ -142,7 +142,7 @@
 						<h3 class="mb-0">Razão</h3>
 					</div>
 					<div class="col-sm-8" ng-if="conciliacao.conciliado">
-						<span class=""><strong> Saldo:</strong> R$ {{conciliacao.saldoArquivo}}</span>
+						<span class=""><strong> Saldo:</strong>{{conciliacao.saldoArquivo}}</span>
 					</div>
 				</div>
 				<div class="table-responsive">
@@ -151,7 +151,7 @@
 							<tr>
 								<!--  <th>Marcar</th> -->
 								<th ng-repeat="descricao in conciliacao.cabecalhoArquivo track by $index">{{descricao}}
-									<button ng-click="conciliacao.excluirColuna($index,'A')" type="button" class="close" aria-label="Close">
+									<button ng-click="conciliacao.excluirColuna($index,'A')" type="button" class="d-print-none close" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
 								</th>

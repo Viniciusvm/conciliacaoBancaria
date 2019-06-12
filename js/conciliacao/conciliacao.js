@@ -11,11 +11,14 @@ angular.module('conciliacaoApp', [])
     conciliacao.limparJaConciliados = limparJaConciliados;
     conciliacao.saldoExtrato = 0;
     conciliacao.saldoArquivo = 0;
+    conciliacao.imprimirResultados = imprimirResultados;
 
     let indicesConciliadosExtrato = [];
     let indicesConciliadosArquivo = [];
     
-      
+    function imprimirResultados(print){
+      window.print();
+    };
     
     function linhaExtratoClick(indice){
         let tabelaExtrato = document.getElementById("tableExtrato");
@@ -128,13 +131,13 @@ angular.module('conciliacaoApp', [])
                         tabelaExtrato.rows[index+1].cells[2].className = "marcador";
                 
                 indicesConciliadosExtrato.push(index);               
-                conciliacao.saldoExtrato += Number.parseFloat(valor);
+                conciliacao.saldoExtrato += arrumarValorParaComparacao(valor);
                
                }    
         });
 
-        conciliacao.saldoExtrato = conciliacao.saldoExtrato.toFixed(2);
-        conciliacao.saldoArquivo = conciliacao.saldoArquivo.toFixed(2);
+        conciliacao.saldoExtrato = formatarValorParaMoeda(conciliacao.saldoExtrato);
+        conciliacao.saldoArquivo = formatarValorParaMoeda(conciliacao.saldoArquivo);
 
         conciliacao.conciliado = true;
         
@@ -160,13 +163,13 @@ angular.module('conciliacaoApp', [])
                   }
                 
                   indicesConciliadosExtrato.push(index);               
-                  conciliacao.saldoExtrato += Number.parseFloat(valor);
+                  conciliacao.saldoExtrato += arrumarValorParaComparacao(valor);
                
                }    
         });
 
-        conciliacao.saldoExtrato = conciliacao.saldoExtrato.toFixed(2);
-        conciliacao.saldoArquivo = conciliacao.saldoArquivo.toFixed(2);
+        conciliacao.saldoExtrato = conciliacao.saldoExtrato;
+        conciliacao.saldoArquivo = conciliacao.saldoArquivo;
 
         conciliacao.conciliado = true;
         
@@ -190,7 +193,7 @@ angular.module('conciliacaoApp', [])
                  
                  indicesConciliadosArquivo.push(index);               
               
-                 conciliacao.saldoArquivo += Number.parseFloat(valor);               
+                 conciliacao.saldoArquivo += arrumarValorParaComparacao(valor);               
 
                  copiaArquivo.splice(index,1);
 
@@ -214,7 +217,7 @@ angular.module('conciliacaoApp', [])
                let historico = element[1];
                let valor = element[2];
 
-               if ((valor && arrumarValorParaComparacao(valorExtrato) === arrumarValorParaComparacao(valor)) && (data && dataExtrato === data)) {
+               if ((valor && arrumarValorParaComparacao(valorExtrato) === arrumarValorParaComparacao(valor)) && (data && arrumaDataParaComparacao(dataExtrato) === arrumaDataParaComparacao(data))) {
                  let tabelaArquivo = document.getElementById("tableArquivo");
                  if(tabelaArquivo.rows[index+1].cells[2]){
                     tabelaArquivo.rows[index+1].cells[2].className = "marcador";
@@ -224,7 +227,7 @@ angular.module('conciliacaoApp', [])
                  
                  indicesConciliadosArquivo.push(index);               
               
-                 conciliacao.saldoArquivo += Number.parseFloat(valor);               
+                 conciliacao.saldoArquivo += arrumarValorParaComparacao(valor);               
 
                  copiaArquivo.splice(index,1);
 
@@ -244,8 +247,6 @@ angular.module('conciliacaoApp', [])
       let historico_linha;
 
       lista.forEach(function(linha){
-
-          /*ARRUMA O CAMPO DATA*/
 
           /* PROCEDIMENTO ESPECIFICO PARA O BANRISUL */
           if(linha[1]){
@@ -307,19 +308,63 @@ angular.module('conciliacaoApp', [])
 
     }
 
-    function arrumarValorParaComparacao(valor){
-      let valorCorrigido = valor;
-      let decimal1 = valorCorrigido.substr(valorCorrigido.length-1,1);
-      let decimal2 = valorCorrigido.substr(valorCorrigido.length-2,1);
-      let separador = valorCorrigido.substr(valorCorrigido.length-3,1);
-      if(separador != '.' &&  separador != ','){    
-        if(decimal2 === '.' || decimal2 === ','){
+    function arrumaDataParaComparacao(data){
+      let dataNova = data;
+
+      if(dataNova.length > 10){
+        dataNova = dataNova.substr(0,10);
+      }
+
+      return dataNova;
+
+    }
+
+    function arrumarValorParaComparacao(valor) {
+  
+      let valorCorrigido;
+      let sinal = '+';
+      
+      // RETIRA OS ESPAÇOS EM BRANCO
+      valorCorrigido = valor.replace(' ','');
+      
+      // ADICIONA O SINAL DE NEGATIVO
+      if(valorCorrigido.indexOf('D') >= 0 || valorCorrigido.indexOf('-') >= 0){
+        sinal = '-';
+      }
+
+      //VERIFICAR COM UTILIZAR ESSA COMPARAÇÃO, POIS NO ARQUIVO DE TESTE O CAMPO D e C ESTAO EM OUTRA COLUNA
+      sinal = '+';
+      
+      //ADICIONA O SINAL E RETIRA TUDO QUE NAO SEJA NUMERO, PONTO e VIRGULA
+      valorCorrigido = sinal + valor.replace(/[^\d.,]+/g, '');
+      
+      //DEIXA O NUMERO SEMPRE COM DUAS CASAS DECIMAIS
+      let decimal1 = valorCorrigido.substr(valorCorrigido.length-1, 1);
+      let decimal2 = valorCorrigido.substr(valorCorrigido.length-2, 1);
+      let separador = valorCorrigido.substr(valorCorrigido.length-3, 1);
+      if (separador != '.' && separador != ',') {
+        if (decimal2 === '.' || decimal2 === ',') {
           valorCorrigido = valorCorrigido + '0';
         } else {
           valorCorrigido = valorCorrigido + '.00';
-        }        
+        }
       }
-      return valorCorrigido.replace(',', '.');   
+      
+      //DEIXA SOMENTE O SINAL E O NUMERO, SEM PONTO E VIRGULA
+      valorCorrigido = valorCorrigido.replace(/[^\d+-]+/g, '');
+      
+      //FORMATA PARA NUMERO COM DUAS CASAS DECIMAIS COM PONTO
+      valorCorrigido = valorCorrigido.substring(0,valorCorrigido.length-2) + '.' + valorCorrigido.substring(valorCorrigido.length-2,valorCorrigido.length);
+      
+      //TRANSFORMA PARA O FORMATO NUMERICO
+      valorCorrigido = parseFloat(valorCorrigido);
+      
+      return valorCorrigido;
+    } 
+
+    function formatarValorParaMoeda(valor) {
+      let valorFormatado = parseFloat(valor).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
+      return valorFormatado;
     }
 
     
@@ -361,11 +406,10 @@ angular.module('conciliacaoApp', [])
         function errorFn(err, file)
         {
             console.log("ERROR:", err, file);
-        }
+        }   
 
 
-        $('#carregar').click(function()
-      {
+        $('#carregar').click(function(){
 
             var config = buildConfig("E");
 
