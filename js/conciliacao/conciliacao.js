@@ -9,8 +9,8 @@ angular.module('conciliacaoApp', [])
     conciliacao.linhaArquivoClick = linhaArquivoClick;
     conciliacao.conciliado = false;
     conciliacao.limparJaConciliados = limparJaConciliados;
-    conciliacao.saldoExtrato = 0;
-    conciliacao.saldoArquivo = 0;
+    conciliacao.saldoExtrato = 0.00;
+    conciliacao.saldoArquivo = 0.00;
     conciliacao.imprimirResultados = imprimirResultados;
 
     let indicesConciliadosExtrato = [];
@@ -21,28 +21,39 @@ angular.module('conciliacaoApp', [])
     };
     
     function linhaExtratoClick(indice){
+        let valorIndice = arrumarValorParaComparacao(conciliacao.extrato[indice][2]);
+        
         let tabelaExtrato = document.getElementById("tableExtrato");
         if(tabelaExtrato.rows[indice+1].cells[2].className === "marcador"){
             tabelaExtrato.rows[indice+1].cells[2].className = '';
             indicesConciliadosExtrato.splice(indice-1,1);
             
+            conciliacao.saldoExtrato = conciliacao.saldoExtrato - valorIndice;
         }
         else{
             tabelaExtrato.rows[indice+1].cells[2].className = "marcador";
             indicesConciliadosExtrato.push(indice);
+            conciliacao.saldoExtrato = conciliacao.saldoExtrato + valorIndice;
+            
         }
+        conciliacao.saldoExtrato = parseFloat(parseFloat(conciliacao.saldoExtrato).toFixed(2));
     }
       
     function linhaArquivoClick(indice){
+        let valorIndice = arrumarValorParaComparacao(conciliacao.arquivo[indice][2]);
+        
         let tabelaArquivo = document.getElementById("tableArquivo");
         if(tabelaArquivo.rows[indice+1].cells[2].className === "marcador"){
             tabelaArquivo.rows[indice+1].cells[2].className = '';
             indicesConciliadosArquivo.splice(indice-1,1);
+            conciliacao.saldoArquivo = conciliacao.saldoArquivo - valorIndice;
         }
         else{
             tabelaArquivo.rows[indice+1].cells[2].className = "marcador";
             indicesConciliadosArquivo.push(indice);
+            conciliacao.saldoArquivo = conciliacao.saldoArquivo + valorIndice;
         }
+        conciliacao.saldoArquivo = parseFloat(parseFloat(conciliacao.saldoArquivo).toFixed(2));
     }
       
     function excluirColuna (indice,tipo){
@@ -357,7 +368,7 @@ angular.module('conciliacaoApp', [])
       valorCorrigido = valorCorrigido.substring(0,valorCorrigido.length-2) + '.' + valorCorrigido.substring(valorCorrigido.length-2,valorCorrigido.length);
       
       //TRANSFORMA PARA O FORMATO NUMERICO
-      valorCorrigido = parseFloat(valorCorrigido);
+      valorCorrigido = parseFloat(valorCorrigido) ;
       
       return valorCorrigido;
     } 
@@ -424,7 +435,8 @@ angular.module('conciliacaoApp', [])
             $('#arquivo').parse({
                 config: config
             });
-
+            
+            zerarSaldos();
         });
 
     });    
